@@ -12,7 +12,7 @@ export default function Home() {
       try {
         await getCurrentUser();
         router.push("/dashboard");
-      } catch (error) {
+      } catch {
         router.push("/login");
       }
     }

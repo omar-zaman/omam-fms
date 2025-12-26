@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -29,9 +29,15 @@ export default function CustomersPage() {
     { key: "openingBalance", label: "Opening Balance" },
   ];
 
+  const loadCustomers = useCallback(async () => {
+    const data = await fetchCustomers();
+    setCustomers(data);
+    setFilteredCustomers(data);
+  }, []);
+
   useEffect(() => {
     loadCustomers();
-  }, []);
+  }, [loadCustomers]);
 
   useEffect(() => {
     const filtered = customers.map((c) => ({
@@ -45,12 +51,6 @@ export default function CustomersPage() {
     );
     setFilteredCustomers(filtered);
   }, [searchTerm, customers]);
-
-  async function loadCustomers() {
-    const data = await fetchCustomers();
-    setCustomers(data);
-    setFilteredCustomers(data);
-  }
 
   function handleCreate() {
     setEditingCustomer(null);

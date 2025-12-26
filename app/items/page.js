@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
 import Modal from "@/components/Modal";
-import { fetchItems, createItem, updateItem, deleteItem, getItem } from "@/lib/api";
+import { fetchItems, createItem, updateItem, deleteItem } from "@/lib/api";
 
 export default function ItemsPage() {
   const [items, setItems] = useState([]);
@@ -30,9 +30,15 @@ export default function ItemsPage() {
     { key: "sellingPrice", label: "Selling Price" },
   ];
 
+  const loadItems = useCallback(async () => {
+    const data = await fetchItems();
+    setItems(data);
+    setFilteredItems(data);
+  }, []);
+
   useEffect(() => {
     loadItems();
-  }, []);
+  }, [loadItems]);
 
   useEffect(() => {
     const filtered = items.filter(
@@ -42,12 +48,6 @@ export default function ItemsPage() {
     );
     setFilteredItems(filtered);
   }, [searchTerm, items]);
-
-  async function loadItems() {
-    const data = await fetchItems();
-    setItems(data);
-    setFilteredItems(data);
-  }
 
   function handleCreate() {
     setEditingItem(null);

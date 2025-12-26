@@ -1,6 +1,6 @@
 # Backend Setup Complete! 🎉
 
-The Express + MongoDB backend has been successfully integrated into your Omam FMS.
+The MongoDB backend is now served directly from the Next.js API routes.
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ The Express + MongoDB backend has been successfully integrated into your Omam FM
    ```bash
    npm run dev
    ```
-   This starts both frontend (port 3000) and backend (port 5000).
+   This starts the Next.js app (frontend + API routes) on port `3000`.
 
 ## Important Notes
 
@@ -44,14 +44,7 @@ All API endpoints (except `/api/auth/login` and `/api/auth/register`) require au
 Create a login page in your Next.js app that calls the `/api/auth/login` endpoint and stores the token.
 
 #### Option 2: Temporarily Disable Auth (Development Only)
-To disable authentication temporarily for development, comment out the auth middleware in route files:
-
-```javascript
-// In backend/src/routes/itemRoutes.js (and other route files)
-// router.use(auth);  // Comment this out temporarily
-```
-
-**⚠️ Remember to re-enable auth before production!**
+If you need to bypass auth for debugging, you can adjust the `handleController` helper in `lib/apiHandler.js` to set `requireAuth: false` for specific routes. Remember to undo these changes before production.
 
 ### API Client
 
@@ -75,48 +68,14 @@ setToken(response.token);
 ## Backend Structure
 
 ```
+app/api/                     # Next.js API routes exposing the backend
 backend/
-├── server.js                 # Main Express server
 ├── src/
-│   ├── config/
-│   │   └── database.js      # MongoDB connection
+│   ├── config/              # Database configuration
 │   ├── models/              # Mongoose models
-│   │   ├── Item.js
-│   │   ├── Material.js
-│   │   ├── Supplier.js
-│   │   ├── Customer.js
-│   │   ├── SalesOrder.js
-│   │   ├── PurchaseOrder.js
-│   │   ├── Payment.js
-│   │   ├── InventoryRecord.js
-│   │   └── User.js
 │   ├── controllers/         # Business logic
-│   │   ├── itemController.js
-│   │   ├── materialController.js
-│   │   ├── supplierController.js
-│   │   ├── customerController.js
-│   │   ├── salesOrderController.js
-│   │   ├── purchaseOrderController.js
-│   │   ├── paymentController.js
-│   │   ├── inventoryController.js
-│   │   ├── reportController.js
-│   │   └── authController.js
-│   ├── routes/              # API routes
-│   │   ├── itemRoutes.js
-│   │   ├── materialRoutes.js
-│   │   ├── supplierRoutes.js
-│   │   ├── customerRoutes.js
-│   │   ├── salesOrderRoutes.js
-│   │   ├── purchaseOrderRoutes.js
-│   │   ├── paymentRoutes.js
-│   │   ├── inventoryRoutes.js
-│   │   ├── reportRoutes.js
-│   │   └── authRoutes.js
-│   ├── middlewares/
-│   │   ├── auth.js          # JWT authentication
-│   │   └── errorHandler.js  # Error handling
-│   └── scripts/
-│       └── createAdmin.js   # Admin user creation script
+│   └── scripts/             # Utility scripts
+└── server.js                # Legacy Express entry point (no longer needed)
 ```
 
 ## Features Implemented
@@ -135,19 +94,19 @@ backend/
 
 1. **Health Check:**
    ```bash
-   curl http://localhost:5000/api/health
+   curl http://localhost:3000/api/health
    ```
 
 2. **Login (get token):**
    ```bash
-   curl -X POST http://localhost:5000/api/auth/login \
+   curl -X POST http://localhost:3000/api/auth/login \
      -H "Content-Type: application/json" \
      -d '{"username":"admin","password":"admin123"}'
    ```
 
 3. **Get Items (with token):**
    ```bash
-   curl http://localhost:5000/api/items \
+   curl http://localhost:3000/api/items \
      -H "Authorization: Bearer YOUR_TOKEN_HERE"
    ```
 
@@ -172,8 +131,7 @@ backend/
 - Check `JWT_SECRET` is set in `.env`
 
 ### CORS Errors
-- Verify `FRONTEND_URL` in `.env` matches your frontend URL
-- Check backend is running on correct port (5000)
+- With the API served from Next.js, calls are same-origin by default. If you host the API separately, ensure the client uses `NEXT_PUBLIC_API_URL`.
 
 ### Port Already in Use
 - Change `PORT` in `.env` to a different port
@@ -185,7 +143,6 @@ If you encounter any issues, check:
 1. MongoDB connection
 2. Environment variables
 3. Node modules installed (`npm install`)
-4. Both servers running (frontend + backend)
+4. Next.js dev server running
 
 Happy coding! 🚀
-

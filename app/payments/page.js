@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -42,9 +42,21 @@ export default function PaymentsPage() {
     { key: "reference", label: "Reference" },
   ];
 
+  const loadData = useCallback(async () => {
+    const [paymentsData, customersData, suppliersData] = await Promise.all([
+      fetchPayments(),
+      fetchCustomers(),
+      fetchSuppliers(),
+    ]);
+    setPayments(paymentsData);
+    setCustomers(customersData);
+    setSuppliers(suppliersData);
+    setFilteredPayments(paymentsData);
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     const filtered = payments.map((payment) => {
@@ -68,18 +80,6 @@ export default function PaymentsPage() {
     );
     setFilteredPayments(filtered);
   }, [searchTerm, payments, customers, suppliers]);
-
-  async function loadData() {
-    const [paymentsData, customersData, suppliersData] = await Promise.all([
-      fetchPayments(),
-      fetchCustomers(),
-      fetchSuppliers(),
-    ]);
-    setPayments(paymentsData);
-    setCustomers(customersData);
-    setSuppliers(suppliersData);
-    setFilteredPayments(paymentsData);
-  }
 
   function handleCreate() {
     setEditingPayment(null);

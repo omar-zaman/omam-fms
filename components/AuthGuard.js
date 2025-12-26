@@ -22,7 +22,7 @@ export default function AuthGuard({ children }) {
       try {
         await getCurrentUser();
         setAuthenticated(true);
-      } catch (error) {
+      } catch {
         // Not authenticated, redirect to login
         router.push("/login");
         return;

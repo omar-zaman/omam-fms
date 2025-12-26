@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import {
@@ -37,30 +37,16 @@ export default function ReportsPage() {
     customerId: "",
   });
 
-  useEffect(() => {
-    loadCustomersAndSuppliers();
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === "sales") {
-      loadSalesReport();
-    } else if (activeTab === "purchase") {
-      loadPurchaseReport();
-    } else if (activeTab === "payments") {
-      loadPaymentReport();
-    }
-  }, [activeTab, salesFilters, purchaseFilters, paymentFilters]);
-
-  async function loadCustomersAndSuppliers() {
+  const loadCustomersAndSuppliers = useCallback(async () => {
     const [customersData, suppliersData] = await Promise.all([
       fetchCustomers(),
       fetchSuppliers(),
     ]);
     setCustomers(customersData);
     setSuppliers(suppliersData);
-  }
+  }, []);
 
-  async function loadSalesReport() {
+  const loadSalesReport = useCallback(async () => {
     setLoading(true);
     try {
       const filters = {};
@@ -82,9 +68,9 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [salesFilters]);
 
-  async function loadPurchaseReport() {
+  const loadPurchaseReport = useCallback(async () => {
     setLoading(true);
     try {
       const filters = {};
@@ -106,9 +92,9 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [purchaseFilters]);
 
-  async function loadPaymentReport() {
+  const loadPaymentReport = useCallback(async () => {
     setLoading(true);
     try {
       const filters = {};
@@ -130,7 +116,21 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [paymentFilters]);
+
+  useEffect(() => {
+    loadCustomersAndSuppliers();
+  }, [loadCustomersAndSuppliers]);
+
+  useEffect(() => {
+    if (activeTab === "sales") {
+      loadSalesReport();
+    } else if (activeTab === "purchase") {
+      loadPurchaseReport();
+    } else if (activeTab === "payments") {
+      loadPaymentReport();
+    }
+  }, [activeTab, loadSalesReport, loadPurchaseReport, loadPaymentReport]);
 
   const salesColumns = [
     { key: "orderNumber", label: "Order Number" },

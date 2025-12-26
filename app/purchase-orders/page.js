@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -39,9 +39,21 @@ export default function PurchaseOrdersPage() {
     { key: "status", label: "Status" },
   ];
 
+  const loadData = useCallback(async () => {
+    const [ordersData, suppliersData, materialsData] = await Promise.all([
+      fetchPurchaseOrders(),
+      fetchSuppliers(),
+      fetchMaterials(),
+    ]);
+    setOrders(ordersData);
+    setSuppliers(suppliersData);
+    setMaterials(materialsData);
+    setFilteredOrders(ordersData);
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     const filtered = orders.map((order) => {
@@ -58,18 +70,6 @@ export default function PurchaseOrdersPage() {
     );
     setFilteredOrders(filtered);
   }, [searchTerm, orders, suppliers]);
-
-  async function loadData() {
-    const [ordersData, suppliersData, materialsData] = await Promise.all([
-      fetchPurchaseOrders(),
-      fetchSuppliers(),
-      fetchMaterials(),
-    ]);
-    setOrders(ordersData);
-    setSuppliers(suppliersData);
-    setMaterials(materialsData);
-    setFilteredOrders(ordersData);
-  }
 
   function handleCreate() {
     setEditingOrder(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -18,9 +18,15 @@ export default function InventoryPage() {
     { key: "availableStock", label: "Available Stock" },
   ];
 
+  const loadInventory = useCallback(async () => {
+    const data = await fetchInventory();
+    setInventory(data);
+    setFilteredInventory(data);
+  }, []);
+
   useEffect(() => {
     loadInventory();
-  }, []);
+  }, [loadInventory]);
 
   useEffect(() => {
     const filtered = inventory.filter((inv) =>
@@ -28,12 +34,6 @@ export default function InventoryPage() {
     );
     setFilteredInventory(filtered);
   }, [searchTerm, inventory]);
-
-  async function loadInventory() {
-    const data = await fetchInventory();
-    setInventory(data);
-    setFilteredInventory(data);
-  }
 
   return (
     <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -29,9 +29,15 @@ export default function SuppliersPage() {
     { key: "email", label: "Email" },
   ];
 
+  const loadSuppliers = useCallback(async () => {
+    const data = await fetchSuppliers();
+    setSuppliers(data);
+    setFilteredSuppliers(data);
+  }, []);
+
   useEffect(() => {
     loadSuppliers();
-  }, []);
+  }, [loadSuppliers]);
 
   useEffect(() => {
     const filtered = suppliers.filter(
@@ -42,12 +48,6 @@ export default function SuppliersPage() {
     );
     setFilteredSuppliers(filtered);
   }, [searchTerm, suppliers]);
-
-  async function loadSuppliers() {
-    const data = await fetchSuppliers();
-    setSuppliers(data);
-    setFilteredSuppliers(data);
-  }
 
   function handleCreate() {
     setEditingSupplier(null);

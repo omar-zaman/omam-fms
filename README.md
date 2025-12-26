@@ -1,6 +1,6 @@
 # Omam FMS
 
-A full-stack factory management system built with Next.js (frontend) and Express + MongoDB (backend).
+A full-stack factory management system built with Next.js (frontend) and MongoDB (backend served through Next.js API routes).
 
 ## Features
 
@@ -21,7 +21,7 @@ A full-stack factory management system built with Next.js (frontend) and Express
 - JavaScript
 
 ### Backend
-- Express.js
+- Next.js API routes (Node.js runtime)
 - MongoDB with Mongoose
 - JWT Authentication
 - bcrypt for password hashing
@@ -88,27 +88,13 @@ If no arguments are provided, it defaults to `admin` / `admin123`.
 
 ### 5. Run the Application
 
-#### Option 1: Run Both Frontend and Backend Together
+#### Run the application
 
 ```bash
 npm run dev
 ```
 
-This will start:
-- Backend server on `http://localhost:5000`
-- Frontend on `http://localhost:3000`
-
-#### Option 2: Run Separately
-
-**Terminal 1 - Backend:**
-```bash
-npm run dev:backend
-```
-
-**Terminal 2 - Frontend:**
-```bash
-npm run dev:frontend
-```
+This will start the Next.js app (frontend + API routes) on `http://localhost:3000`.
 
 ## Project Structure
 
@@ -127,15 +113,14 @@ omam-fms/
 │   └── reports/
 ├── components/             # React components
 ├── lib/                    # Frontend utilities and API client
-├── backend/                # Express backend
+├── app/api/                # Next.js API routes (backend)
+├── backend/                # Shared backend domain logic (models/controllers/scripts)
 │   ├── src/
 │   │   ├── config/         # Database configuration
 │   │   ├── models/         # Mongoose models
 │   │   ├── controllers/    # Business logic
-│   │   ├── routes/         # API routes
-│   │   ├── middlewares/     # Auth and error handling
 │   │   └── scripts/        # Utility scripts
-│   └── server.js           # Express server entry point
+│   └── server.js           # Legacy Express server entry point (unused with Next.js API)
 └── package.json
 ```
 
@@ -184,7 +169,7 @@ Similar endpoints as Sales Orders.
 
 ## Authentication
 
-The frontend stores JWT tokens in `localStorage`. The API client automatically includes the token in request headers.
+The frontend stores JWT tokens in `localStorage`. The API client automatically includes the token in request headers. API requests now default to the same origin (`/api`) so no extra backend server needs to run during development.
 
 To use authentication in the frontend:
 

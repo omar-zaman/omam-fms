@@ -21,7 +21,7 @@ export default function LoginPage() {
         await getCurrentUser();
         // Already authenticated, redirect to dashboard
         router.push("/dashboard");
-      } catch (error) {
+      } catch {
         // Not authenticated, show login form
         setCheckingAuth(false);
       }

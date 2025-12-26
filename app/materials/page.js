@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SearchBar from "@/components/SearchBar";
 import DataTable from "@/components/DataTable";
@@ -39,9 +39,19 @@ export default function MaterialsPage() {
     { key: "stockQuantity", label: "Stock Quantity" },
   ];
 
+  const loadData = useCallback(async () => {
+    const [materialsData, suppliersData] = await Promise.all([
+      fetchMaterials(),
+      fetchSuppliers(),
+    ]);
+    setMaterials(materialsData);
+    setSuppliers(suppliersData);
+    setFilteredMaterials(materialsData);
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     const filtered = materials.map((m) => {
@@ -58,16 +68,6 @@ export default function MaterialsPage() {
     );
     setFilteredMaterials(filtered);
   }, [searchTerm, materials, suppliers]);
-
-  async function loadData() {
-    const [materialsData, suppliersData] = await Promise.all([
-      fetchMaterials(),
-      fetchSuppliers(),
-    ]);
-    setMaterials(materialsData);
-    setSuppliers(suppliersData);
-    setFilteredMaterials(materialsData);
-  }
 
   function handleCreate() {
     setEditingMaterial(null);

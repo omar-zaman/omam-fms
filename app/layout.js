@@ -1,5 +1,6 @@
 import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 export const metadata = {
   title: "Omam FMS",
@@ -10,7 +11,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <SessionProviderWrapper>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

@@ -30,5 +30,5 @@ const supplierSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Supplier", supplierSchema);
+module.exports = mongoose.models.Supplier || mongoose.model("Supplier", supplierSchema);
 

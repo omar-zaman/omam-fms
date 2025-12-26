@@ -66,5 +66,5 @@ const purchaseOrderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("PurchaseOrder", purchaseOrderSchema);
+module.exports = mongoose.models.PurchaseOrder || mongoose.model("PurchaseOrder", purchaseOrderSchema);
 

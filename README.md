@@ -1,6 +1,6 @@
 # Omam FMS
 
-A full-stack factory management system built with Next.js (frontend) and Express + MongoDB (backend).
+A full-stack factory management system built with Next.js and MongoDB.
 
 ## Features
 
@@ -21,9 +21,9 @@ A full-stack factory management system built with Next.js (frontend) and Express
 - JavaScript
 
 ### Backend
-- Express.js
+- Next.js API Routes
 - MongoDB with Mongoose
-- JWT Authentication
+- NextAuth (credentials provider)
 - bcrypt for password hashing
 
 ## Prerequisites
@@ -48,17 +48,11 @@ Create a `.env` file in the root directory (copy from `.env.example`):
 # MongoDB Connection
 MONGODB_URI=mongodb+srv://omarzaman1010_db_user:<OmarFmsPass54321>@cluster0.dijzgqg.mongodb.net/omam-fms?appName=Cluster0
 
-# Server Port
-PORT=5000
-
-# JWT Secret
-JWT_SECRET=qwertyuiop_54321
-
-# Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:3000
+# NextAuth secret
+NEXTAUTH_SECRET=replace_with_strong_secret
 ```
 
-**Important**: Change `JWT_SECRET` to a secure random string in production.
+**Important**: Change `NEXTAUTH_SECRET` to a secure random string in production.
 
 ### 3. Start MongoDB
 
@@ -88,27 +82,13 @@ If no arguments are provided, it defaults to `admin` / `admin123`.
 
 ### 5. Run the Application
 
-#### Option 1: Run Both Frontend and Backend Together
+#### Start the App
 
 ```bash
 npm run dev
 ```
 
-This will start:
-- Backend server on `http://localhost:5000`
-- Frontend on `http://localhost:3000`
-
-#### Option 2: Run Separately
-
-**Terminal 1 - Backend:**
-```bash
-npm run dev:backend
-```
-
-**Terminal 2 - Frontend:**
-```bash
-npm run dev:frontend
-```
+Next.js will serve both the frontend and API routes from `http://localhost:3000`.
 
 ## Project Structure
 
@@ -127,26 +107,22 @@ omam-fms/
 │   └── reports/
 ├── components/             # React components
 ├── lib/                    # Frontend utilities and API client
-├── backend/                # Express backend
+├── backend/                # Shared backend logic (models, controllers, scripts)
 │   ├── src/
 │   │   ├── config/         # Database configuration
 │   │   ├── models/         # Mongoose models
-│   │   ├── controllers/    # Business logic
-│   │   ├── routes/         # API routes
-│   │   ├── middlewares/     # Auth and error handling
+│   │   ├── controllers/    # Business logic used by API routes
 │   │   └── scripts/        # Utility scripts
-│   └── server.js           # Express server entry point
 └── package.json
 ```
 
 ## API Endpoints
 
-All API endpoints are prefixed with `/api` and require authentication (except login/register).
+All API endpoints are prefixed with `/api` and require an authenticated NextAuth session. They are served directly by Next.js API routes.
 
 ### Authentication
-- `POST /api/auth/login` - Login
-- `POST /api/auth/register` - Register new user
-- `GET /api/auth/me` - Get current user (protected)
+- `POST /api/auth/[...nextauth]` - NextAuth credential sign-in
+- `GET /api/auth/session` - NextAuth session lookup
 
 ### Items
 - `GET /api/items` - Get all items (with optional `?search=term`)
@@ -184,23 +160,17 @@ Similar endpoints as Sales Orders.
 
 ## Authentication
 
-The frontend stores JWT tokens in `localStorage`. The API client automatically includes the token in request headers.
+The app uses NextAuth with a credentials provider. Sessions are stored in HTTP-only cookies, so API calls automatically include credentials on the same origin.
 
-To use authentication in the frontend:
-
-```javascript
-import { login, setToken } from "@/lib/api";
-
-const response = await login("admin", "admin123");
-setToken(response.token);
-```
+- Use the `/login` page to sign in with a username/password (default admin credentials: `admin` / `admin123`).
+- The NextAuth session is available through `useSession()` in client components and `getServerSession` in server contexts.
 
 ## Development Notes
 
 - The backend uses MongoDB ObjectIds, but the frontend API client transforms them to `id` for compatibility.
 - Inventory is automatically updated when sales orders are created/updated/deleted.
 - Material stock is updated when purchase orders are completed.
-- All routes except `/api/auth/login` and `/api/auth/register` require authentication.
+- All routes require an active NextAuth session.
 
 ## Troubleshooting
 
@@ -215,8 +185,8 @@ setToken(response.token);
 
 ### Authentication Errors
 - Ensure you've created an admin user
-- Check that JWT token is being sent in request headers
-- Verify `JWT_SECRET` is set in `.env`
+- Check that `NEXTAUTH_SECRET` is set in `.env`
+- Verify that your browser has a valid NextAuth session (clear cookies and sign in again)
 
 ## Production Deployment
 

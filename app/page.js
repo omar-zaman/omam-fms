@@ -2,22 +2,21 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
+  const { status } = useSession();
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        await getCurrentUser();
-        router.push("/dashboard");
-      } catch (error) {
-        router.push("/login");
-      }
+    if (status === "authenticated") {
+      router.replace("/dashboard");
     }
-    checkAuth();
-  }, [router]);
+
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [router, status]);
 
   return (
     <div

@@ -66,5 +66,5 @@ const salesOrderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("SalesOrder", salesOrderSchema);
+module.exports = mongoose.models.SalesOrder || mongoose.model("SalesOrder", salesOrderSchema);
 

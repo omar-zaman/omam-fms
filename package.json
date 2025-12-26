@@ -3,12 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "next dev",
-    "dev:backend": "nodemon backend/server.js",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "start:backend": "node backend/server.js",
     "create-admin": "node backend/src/scripts/createAdmin.js",
     "test-db": "node backend/src/scripts/testConnection.js",
     "lint": "eslint"

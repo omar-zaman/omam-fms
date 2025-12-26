@@ -1,30 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { getCurrentUser, removeToken } from "@/lib/api";
+import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
-  const router = useRouter();
-  const [username, setUsername] = useState("Admin");
+  const { data: session } = useSession();
   const [showLogout, setShowLogout] = useState(false);
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const user = await getCurrentUser();
-        setUsername(user.username || "Admin");
-      } catch (error) {
-        console.error("Error loading user:", error);
-      }
-    }
-    loadUser();
-  }, []);
-
   function handleLogout() {
-    removeToken();
-    router.push("/login");
+    signOut({ callbackUrl: "/login" });
   }
+
+  const username = session?.user?.username || "Admin";
 
   return (
     <nav

@@ -38,5 +38,6 @@ inventoryRecordSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("InventoryRecord", inventoryRecordSchema);
+module.exports =
+  mongoose.models.InventoryRecord || mongoose.model("InventoryRecord", inventoryRecordSchema);
 

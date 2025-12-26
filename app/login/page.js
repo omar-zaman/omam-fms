@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login, setToken, getCurrentUser } from "@/lib/api";
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { status } = useSession();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -15,19 +16,15 @@ export default function LoginPage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    async function checkAuth() {
-      try {
-        await getCurrentUser();
-        // Already authenticated, redirect to dashboard
-        router.push("/dashboard");
-      } catch (error) {
-        // Not authenticated, show login form
-        setCheckingAuth(false);
-      }
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+      return;
     }
-    checkAuth();
-  }, [router]);
+
+    if (status !== "loading") {
+      setCheckingAuth(false);
+    }
+  }, [router, status]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -35,16 +32,25 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await login(formData.username, formData.password);
-      if (response && response.token) {
-        setToken(response.token);
-        router.push("/dashboard");
-      } else {
-        setError("Login failed: No token received");
+      const result = await signIn("credentials", {
+        redirect: false,
+        username: formData.username,
+        password: formData.password,
+        callbackUrl: "/dashboard",
+      });
+
+      if (result?.error) {
+        setError(result.error || "Invalid username or password.");
+        return;
       }
+
+      router.push(result?.url || "/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "Invalid username or password. Please check your credentials and ensure the backend server is running.");
+      setError(
+        err.message ||
+          "Invalid username or password. Please check your credentials and ensure the backend server is running."
+      );
     } finally {
       setLoading(false);
     }

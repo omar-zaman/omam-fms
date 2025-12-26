@@ -1,41 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getCurrentUser } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const { status } = useSession();
 
   useEffect(() => {
-    async function checkAuth() {
-      // Allow access to login page without authentication
-      if (pathname === "/login") {
-        setLoading(false);
-        setAuthenticated(true); // Allow login page to render
-        return;
+    // Allow access to login page without authentication
+    if (pathname === "/login") {
+      if (status === "authenticated") {
+        router.replace("/dashboard");
       }
-
-      try {
-        await getCurrentUser();
-        setAuthenticated(true);
-      } catch (error) {
-        // Not authenticated, redirect to login
-        router.push("/login");
-        return;
-      } finally {
-        setLoading(false);
-      }
+      return;
     }
 
-    checkAuth();
-  }, [pathname, router]);
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+
+  }, [pathname, router, status]);
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (status === "loading") {
     return (
       <div
         style={{
@@ -67,7 +57,7 @@ export default function AuthGuard({ children }) {
   }
 
   // Only render children if authenticated
-  if (!authenticated) {
+  if (status !== "authenticated") {
     return null;
   }
 

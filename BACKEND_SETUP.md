@@ -1,136 +1,65 @@
-# Backend Setup Complete! 🎉
+# Backend Setup
 
-The MongoDB-powered backend logic has been wired directly into your Next.js app via API routes.
+All backend logic is served directly through the Next.js API routes in this repository. No separate Express server is required—the app connects to MongoDB, authenticates with NextAuth, and exposes the controllers under `/api/*`.
 
 ## Quick Start
 
-1. **Install dependencies:**
+1. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Set up environment variables:**
-   - Copy `.env.example` to `.env` (if not already done)
-   - Update `MONGODB_URI` with your MongoDB connection string
-   - Set a secure `NEXTAUTH_SECRET`
-
-3. **Start MongoDB:**
-   - Make sure MongoDB is running locally or use MongoDB Atlas
-
-4. **Create admin user:**
+2. **Copy environment variables**
    ```bash
-   npm run create-admin
+   cp .env.example .env
    ```
-   Or with custom credentials:
-   ```bash
-   npm run create-admin admin mypassword
-   ```
+   Update `MONGODB_URI`, `NEXTAUTH_SECRET`, and `NEXTAUTH_URL` for your environment.
 
-5. **Run the application:**
+3. **Start MongoDB**
+   - Run `mongod` locally **or** use MongoDB Atlas with a valid connection string.
+
+4. **Create an admin user**
+   ```bash
+   npm run create-admin [username] [password]
+   ```
+   Defaults to `admin` / `admin123` when arguments are omitted.
+
+5. **Run the application**
    ```bash
    npm run dev
    ```
-   Next.js serves both the frontend and API routes on `http://localhost:3000`.
+   The frontend and API routes are served together at `http://localhost:3000`.
 
-## Important Notes
+## Authentication
 
-### Authentication
-
-All API endpoints require an authenticated NextAuth session. Use the `/login` page to sign in with credentials (default: `admin` / `admin123`). Sessions are stored in cookies, so API calls from the browser automatically include them.
-
-Use `useSession()` or `getServerSession` to read the authenticated user in React components.
+- Login is handled by NextAuth credentials at `/login`.
+- API handlers use `getServerSession(authOptions)` to require an active session by default.
+- Sessions are JWT-based and stored in HTTP-only cookies; browser requests automatically include them.
 
 ## Backend Structure
 
 ```
 backend/
 ├── src/
-│   ├── config/
-│   │   └── database.js      # MongoDB connection
-│   ├── models/              # Mongoose models
-│   │   ├── Item.js
-│   │   ├── Material.js
-│   │   ├── Supplier.js
-│   │   ├── Customer.js
-│   │   ├── SalesOrder.js
-│   │   ├── PurchaseOrder.js
-│   │   ├── Payment.js
-│   │   ├── InventoryRecord.js
-│   │   └── User.js
-│   ├── controllers/         # Business logic
-│   │   ├── itemController.js
-│   │   ├── materialController.js
-│   │   ├── supplierController.js
-│   │   ├── customerController.js
-│   │   ├── salesOrderController.js
-│   │   ├── purchaseOrderController.js
-│   │   ├── paymentController.js
-│   │   ├── inventoryController.js
-│   │   ├── reportController.js
-│   │   └── authController.js
+│   ├── config/          # MongoDB connection helper for scripts
+│   ├── models/          # Mongoose models (Item, Material, Supplier, Customer, SalesOrder, PurchaseOrder, Payment, InventoryRecord, User)
+│   ├── controllers/     # Business logic shared with API routes
 │   └── scripts/
-│       └── createAdmin.js   # Admin user creation script
+│       └── createAdmin.js  # Seed admin utility
 ```
 
-## Features Implemented
+## Feature Coverage
 
-✅ **All CRUD operations** for Items, Materials, Suppliers, Customers
-✅ **Sales Orders** with automatic inventory updates
-✅ **Purchase Orders** with material stock updates
-✅ **Payments** tracking for customers and suppliers
-✅ **Inventory** management with reserved/available stock
-✅ **Reports** with filtering (sales, purchases, payments)
-✅ **NextAuth Authentication** with bcrypt password hashing
-✅ **Error handling** middleware
-✅ **Data validation** using Mongoose schemas
-
-## Testing the Backend
-
-1. **Health Check:**
-   ```bash
-   curl http://localhost:3000/api/health
-   ```
-
-2. **Check session:**
-   ```bash
-   curl http://localhost:3000/api/auth/session
-   ```
-
-3. **Get Items (with active session cookies in your client):**
-   ```bash
-   curl http://localhost:3000/api/items
-   ```
-
-## Next Steps
-
-1. **Wire sessions into UI** - Surface session/user details where needed via `useSession()`
-2. **Improve linting** - Convert legacy CommonJS modules if you want a clean `npm run lint`
-3. **Add Error Handling** - Show user-friendly error messages
-4. **Test All Features** - Verify CRUD operations work correctly
-5. **Production Setup** - Configure for production deployment
+- CRUD for items, materials, suppliers, customers
+- Sales orders with automatic inventory adjustments
+- Purchase orders that restock materials
+- Payments for customers and suppliers
+- Inventory summaries and per-item records
+- Reporting endpoints for sales, purchases, and customer payments
+- Credential-based authentication via NextAuth
 
 ## Troubleshooting
 
-### MongoDB Connection Issues
-- Check if MongoDB is running: `mongod` or check MongoDB Atlas
-- Verify `MONGODB_URI` in `.env` is correct
-- Check network connectivity
-
-### Authentication Errors
-- Ensure admin user is created: `npm run create-admin`
-- Check `NEXTAUTH_SECRET` is set in `.env`
-- Clear cookies and sign in again if sessions become invalid
-
-### CORS Errors
-- Requests are served from the same origin as the frontend, so CORS should not be an issue. If you use a different domain, proxy API requests through Next.js.
-
-## Support
-
-If you encounter any issues, check:
-1. MongoDB connection
-2. Environment variables
-3. Node modules installed (`npm install`)
-4. The Next.js dev server running (`npm run dev`)
-
-Happy coding! 🚀
-
+- **MongoDB connection**: verify `MONGODB_URI` and that your database is reachable. Use `npm run test-db` for a quick check.
+- **Authentication**: ensure `NEXTAUTH_SECRET` is set and that cookies are allowed in the browser. Recreate the admin user if needed.
+- **Sessions in API calls**: keep requests on the same origin as the app (`/api`) so cookies are forwarded automatically.

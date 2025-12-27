@@ -1,203 +1,117 @@
 # Omam FMS
 
-A full-stack factory management system built with Next.js and MongoDB.
+A factory management system built entirely with the Next.js App Router and MongoDB. The app ships with authenticated dashboards for items, materials, suppliers, customers, inventory, payments, sales orders, purchase orders, and reporting.
 
 ## Features
 
-- **Items Management**: Create, read, update, and delete items
-- **Materials Management**: Track materials with supplier information
-- **Suppliers & Customers**: Manage supplier and customer data
-- **Sales Orders**: Create and manage sales orders with inventory tracking
-- **Purchase Orders**: Manage purchase orders with material stock updates
-- **Payments**: Track customer and supplier payments
-- **Inventory**: Real-time inventory tracking with reserved and available stock
-- **Reports**: Generate sales, purchase, and payment reports with filters
+- **Secure authentication**: NextAuth credentials provider with hashed passwords and cookie-based sessions
+- **Dashboard experience**: Sidebar navigation, global search, and contextual page headers
+- **Core records**: CRUD for items, materials, suppliers, and customers
+- **Order flows**: Sales and purchase orders that update inventory and material stock automatically
+- **Financials**: Customer and supplier payments with running totals
+- **Inventory**: Reserved/available stock tracking and per-item drill-down
+- **Reporting**: Sales, purchase, and payment reports with filters
 
 ## Tech Stack
 
-### Frontend
-- Next.js 16 (App Router)
-- React 19
-- JavaScript
-
-### Backend
-- Next.js API Routes
+- Next.js 16 (App Router) + React 19
+- NextAuth.js (credentials provider, JWT sessions)
 - MongoDB with Mongoose
-- NextAuth (credentials provider)
 - bcrypt for password hashing
 
-## Prerequisites
+## Getting Started
 
-- Node.js (v18 or higher)
-- MongoDB (local installation or MongoDB Atlas)
-- npm or yarn
-
-## Setup Instructions
-
-### 1. Install Dependencies
+### 1) Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Configure Environment Variables
+### 2) Configure environment variables
 
-Create a `.env` file in the root directory (copy from `.env.example`):
-
-```env
-# MongoDB Connection
-MONGODB_URI=mongodb+srv://omarzaman1010_db_user:<OmarFmsPass54321>@cluster0.dijzgqg.mongodb.net/omam-fms?appName=Cluster0
-
-# NextAuth secret
-NEXTAUTH_SECRET=replace_with_strong_secret
-```
-
-**Important**: Change `NEXTAUTH_SECRET` to a secure random string in production.
-
-### 3. Start MongoDB
-
-Make sure MongoDB is running on your system:
+Copy the example file and update values as needed:
 
 ```bash
-# If using local MongoDB
-mongod
+cp .env.example .env
 ```
 
-Or use MongoDB Atlas and update `MONGODB_URI` in `.env`.
+Set at minimum:
 
-### 4. Create Admin User
+- `MONGODB_URI` – your MongoDB connection string (local or Atlas)
+- `NEXTAUTH_SECRET` – a long random string
+- `NEXTAUTH_URL` – usually `http://localhost:3000` in development
 
-Create a default admin user:
+### 3) Seed an admin user
+
+Create an initial admin account (defaults to `admin` / `admin123` if no args are passed):
 
 ```bash
-node backend/src/scripts/createAdmin.js [username] [password]
+npm run create-admin [username] [password]
 ```
 
-Example:
-```bash
-node backend/src/scripts/createAdmin.js admin admin123
-```
-
-If no arguments are provided, it defaults to `admin` / `admin123`.
-
-### 5. Run the Application
-
-#### Start the App
+### 4) Run the app
 
 ```bash
 npm run dev
 ```
 
-Next.js will serve both the frontend and API routes from `http://localhost:3000`.
+Next.js serves the UI and API from `http://localhost:3000`.
+
+## Authentication
+
+- The `/login` page uses NextAuth's credentials provider.
+- Sessions are JWT-based and stored in HTTP-only cookies, so browser API calls automatically include credentials.
+- Client components read the session with `useSession()`, and API route handlers validate requests with `getServerSession(authOptions)`.
+- Protected routes redirect unauthenticated users to `/login` via the `AuthGuard` wrapper.
+
+## API Overview
+
+All endpoints live under `/api` and expect an active NextAuth session unless noted.
+
+- `POST /api/auth/[...nextauth]` – credentials sign-in handled by NextAuth
+- `GET /api/auth/session` – session lookup
+- CRUD endpoints for `/api/items`, `/api/materials`, `/api/suppliers`, `/api/customers`
+- Order flows at `/api/sales-orders` and `/api/purchase-orders`
+- Payments via `/api/payments`
+- Inventory data at `/api/inventory` and `/api/inventory/item/:itemId`
+- Reports under `/api/reports/*` (sales orders, purchase orders, customer payments)
+- `GET /api/health` – unauthenticated health check
 
 ## Project Structure
 
 ```
 omam-fms/
-├── app/                    # Next.js app directory (frontend)
-│   ├── dashboard/
-│   ├── items/
-│   ├── materials/
-│   ├── suppliers/
-│   ├── customers/
-│   ├── sales-orders/
-│   ├── purchase-orders/
-│   ├── payments/
-│   ├── inventory/
-│   └── reports/
-├── components/             # React components
-├── lib/                    # Frontend utilities and API client
-├── backend/                # Shared backend logic (models, controllers, scripts)
-│   ├── src/
-│   │   ├── config/         # Database configuration
-│   │   ├── models/         # Mongoose models
-│   │   ├── controllers/    # Business logic used by API routes
-│   │   └── scripts/        # Utility scripts
-└── package.json
+├── app/                    # Next.js app directory (routes & UI)
+│   ├── api/                # Route handlers that wrap backend controllers
+│   ├── dashboard/          # Home dashboard tiles
+│   ├── items/, materials/, suppliers/, customers/ ...
+│   └── login/              # NextAuth-powered login page
+├── components/             # Shared UI (layout, navbar, sidebar, data table, auth guard)
+├── lib/                    # DB connection, API client, controller adapter, NextAuth options
+├── backend/src/            # Mongoose models, controllers, and utility scripts
+│   └── scripts/createAdmin.js
+└── public/                 # Static assets
 ```
 
-## API Endpoints
+## MongoDB Notes
 
-All API endpoints are prefixed with `/api` and require an authenticated NextAuth session. They are served directly by Next.js API routes.
+- Use the `MONGODB_URI` from your Atlas cluster or local MongoDB instance.
+- For Atlas, remember to whitelist your IP and URL-encode any special characters in the password.
+- Restart the dev server after changing environment variables.
 
-### Authentication
-- `POST /api/auth/[...nextauth]` - NextAuth credential sign-in
-- `GET /api/auth/session` - NextAuth session lookup
+## Scripts
 
-### Items
-- `GET /api/items` - Get all items (with optional `?search=term`)
-- `GET /api/items/:id` - Get item by ID
-- `POST /api/items` - Create item
-- `PUT /api/items/:id` - Update item
-- `DELETE /api/items/:id` - Delete item
-
-### Materials, Suppliers, Customers
-Similar CRUD endpoints as Items.
-
-### Sales Orders
-- `GET /api/sales-orders` - Get all orders (with filters)
-- `POST /api/sales-orders` - Create order
-- `PUT /api/sales-orders/:id` - Update order
-- `DELETE /api/sales-orders/:id` - Delete order
-
-### Purchase Orders
-Similar endpoints as Sales Orders.
-
-### Payments
-- `GET /api/payments` - Get all payments (with filters)
-- `POST /api/payments` - Create payment
-- `PUT /api/payments/:id` - Update payment
-- `DELETE /api/payments/:id` - Delete payment
-
-### Inventory
-- `GET /api/inventory` - Get all inventory records
-- `GET /api/inventory/item/:itemId` - Get inventory for specific item
-
-### Reports
-- `GET /api/reports/sales-orders` - Sales order report (with date range, customer filters)
-- `GET /api/reports/purchase-orders` - Purchase order report
-- `GET /api/reports/customer-payments` - Customer payment report
-
-## Authentication
-
-The app uses NextAuth with a credentials provider. Sessions are stored in HTTP-only cookies, so API calls automatically include credentials on the same origin.
-
-- Use the `/login` page to sign in with a username/password (default admin credentials: `admin` / `admin123`).
-- The NextAuth session is available through `useSession()` in client components and `getServerSession` in server contexts.
-
-## Development Notes
-
-- The backend uses MongoDB ObjectIds, but the frontend API client transforms them to `id` for compatibility.
-- Inventory is automatically updated when sales orders are created/updated/deleted.
-- Material stock is updated when purchase orders are completed.
-- All routes require an active NextAuth session.
+- `npm run dev` – start the Next.js dev server
+- `npm run build` / `npm run start` – production build and start
+- `npm run create-admin [user] [pass]` – seed an admin account
+- `npm run test-db` – simple connection test to MongoDB
 
 ## Troubleshooting
 
-### MongoDB Connection Error
-- Ensure MongoDB is running
-- Check `MONGODB_URI` in `.env`
-- Verify network connectivity if using MongoDB Atlas
-
-### CORS Errors
-- Ensure `FRONTEND_URL` in `.env` matches your frontend URL
-- Check that backend is running on the correct port
-
-### Authentication Errors
-- Ensure you've created an admin user
-- Check that `NEXTAUTH_SECRET` is set in `.env`
-- Verify that your browser has a valid NextAuth session (clear cookies and sign in again)
-
-## Production Deployment
-
-1. Set secure environment variables
-2. Use a production MongoDB instance
-3. Set up proper CORS origins
-4. Use HTTPS
-5. Implement rate limiting
-6. Add input validation and sanitization
-7. Set up error logging and monitoring
+- **Authentication**: ensure `NEXTAUTH_SECRET` is set and cookies are not blocked. Clear cookies and sign in again if needed.
+- **Database**: verify `MONGODB_URI` and that MongoDB is reachable. Run `npm run test-db` to confirm connectivity.
+- **Sessions in API calls**: keep the frontend and API on the same origin (default `/api`) so cookies are sent automatically.
 
 ## License
 
-Private - All rights reserved
+This project is provided as-is for demonstration purposes.

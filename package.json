@@ -2,14 +2,16 @@
   "name": "omam-fms",
   "version": "0.1.0",
   "private": true,
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "create-admin": "node backend/src/scripts/createAdmin.js",
-    "test-db": "node backend/src/scripts/testConnection.js",
-    "lint": "eslint"
-  },
+    "lint": "next lint",
+    "create-admin": "node scripts/createAdmin.js",
+    "create-admin:custom": "node scripts/createAdmin.js"
+  }
+,
   "dependencies": {
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",

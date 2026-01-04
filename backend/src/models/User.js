@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,9 +21,7 @@ const userSchema = new mongoose.Schema(
       default: "admin",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 // Hash password before saving
@@ -33,10 +31,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Method to compare password
+// Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.models.User || mongoose.model("User", userSchema);
+const User =
+  mongoose.models.User || mongoose.model("User", userSchema);
 
+export default User;

@@ -1,4 +1,4 @@
-// scripts/createAdmin.js
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import connectDB from "./lib/db";
 import User from "./backend/src/models/User"; 

@@ -1,7 +1,7 @@
 // scripts/createAdmin.js
 import bcrypt from "bcrypt";
-import connectDB from "@/lib/db";
-import User from "@/backend/src/models/User"; 
+import connectDB from "./lib/db";
+import User from "./backend/src/models/User"; 
 
 async function createAdminUser() {
   try {

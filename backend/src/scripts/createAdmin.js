@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import connectDB from "./lib/db";
 import User from "./backend/src/models/User"; 
 

@@ -17,7 +17,7 @@ A factory management system built entirely with the Next.js App Router and Mongo
 - Next.js 16 (App Router) + React 19
 - NextAuth.js (credentials provider, JWT sessions)
 - MongoDB with Mongoose
-- bcrypt for password hashing
+- bcryptjs for password hashing
 
 ## Getting Started
 
